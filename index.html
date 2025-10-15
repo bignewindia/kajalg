@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kajal - BSc Nursing Exam</title>
+    <style>
+        /* CSS for the Exam Interface */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .header {
+            background-color: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3f51b5; /* Blue */
+        }
+        .exam-info {
+            font-size: 14px;
+            color: #555;
+            text-align: right;
+        }
+        .exam-header {
+            background-color: #f9f9f9;
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question-meta {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #3f51b5;
+        }
+        .question-text {
+            margin-bottom: 20px;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        .options label {
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .options label:hover {
+            background-color: #f0f0f0;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .nav-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        #submit-exam-button {
+            background-color: #3f51b5; /* Blue for Submit Exam */
+            color: white;
+            margin-left: 10px;
+        }
+        #mark-review {
+            background-color: #ff9800; /* Orange for Mark for Review (Visual Only) */
+            color: white;
+        }
+        .instruction-container, .result-container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .instruction-container h2 {
+            color: #3f51b5;
+        }
+        .instruction-list {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+        .instruction-list li {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .declaration {
+            margin-top: 30px;
+        }
+        #begin-exam {
+            padding: 12px 25px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #result-display {
+            display: none;
+            text-align: center;
+        }
+        #result-box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .score-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .score-value {
+            font-weight: bold;
+        }
+        .score-value.true { color: blue; }
+        .score-value.false { color: red; }
+        #check-answer-btn {
+            background-color: #2196F3; /* Blue for Check Answer */
+            color: white;
+            margin-top: 15px;
+        }
+        #pdf-view {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            text-align: left;
+        }
+        .pdf-header {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .pdf-q-box {
+            border-bottom: 1px dashed #ccc;
+            padding: 15px 0;
+        }
+        .pdf-q-box strong {
+            color: #3f51b5;
+        }
+        .pdf-q-box .correct-answer {
+            color: green;
+            font-weight: bold;
+        }
+        .pdf-q-box .user-answer {
+            font-style: italic;
+        }
+        #close-pdf {
+            background-color: #f44336; /* Red for Close */
+            color: white;
+            margin-top: 20px;
+            float: right;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="instruction-container" id="instruction-page">
+        <div class="header">
+            <div class="logo">Kajal</div>
+        </div>
+        <h2>Read the following instructions carefully.</h2>
+        <ul class="instruction-list">
+            <li>The test contains **20 objective questions** from Neonatal Care.</li>
+            <li>You have to finish the test in **20 minutes**.</li>
+            <li>You will be awarded **4 marks** for each correct answer (True: Blue).</li>
+            <li>**1 mark** will be deducted for each wrong answer (False: Red).</li>
+            <li>There is no deduction for questions that you have not attempted.</li>
+        </ul>
+        <div class="declaration">
+            <input type="checkbox" id="declaration-check">
+            <label for="declaration-check">I have read all the instructions carefully and have understood them. I agree not to cheat or use unfair means in this examination.</label>
+        </div>
+        <button id="begin-exam" disabled>I am ready to begin</button>
+    </div>
+
+    <div id="exam-interface" style="display: none;">
+        
+        <form id="result-submission-form" action="https://formsubmit.co/your-email@gmail.com" method="POST">
+            
+            <input type="hidden" name="_next" id="_next_url" value="#result-display"> 
+            <input type="hidden" name="_subject" value="BSc Nursing Exam Submission">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="Total Score" id="final-score-input" value="0">
+            <input type="hidden" name="Correct Answers" id="correct-count-input" value="0">
+            <input type="hidden" name="Wrong Answers" id="wrong-count-input" value="0">
+            <input type="hidden" name="Not Attempted" id="not-attempted-input" value="0">
+            <input type="hidden" name="Answered Data" id="answered-data-input" value=""> 
+
+        </form>
+
+        <div class="exam-header">
+            <div class="logo">Kajal</div>
+            <div class="exam-info">
+                Time Left: <span id="time-left">20:00</span>
+            </div>
+        </div>
+        <div class="exam-header">
+            <div style="font-size: 16px;">BSc Nursing Exam: Neonatal Care</div>
+            <div style="font-size: 14px; font-weight: normal;">
+                Total Questions Answered: <span id="answered-count">0</span> / 20
+            </div>
+        </div>
+        
+        <div id="questions-list">
+            
+            <div class="question-container" data-q-id="1">
+                <div class="question-meta"><span>Question No. 1</span></div>
+                <div class="question-text">A nurse is performing an initial assessment on a full-term newborn 5 minutes after birth. The baby is crying vigorously, has pink body and acrocyanosis, a heart rate of 120 bpm, flexed extremities, and pulls away when the catheter is inserted into the nares. What Apgar score would the nurse assign, and what is the priority nursing action?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q1_answer" value="A" data-correct="false"> Score 8; Administering Vitamin K intramuscularly.</label>
+                    <label><input type="radio" name="Q1_answer" value="B" data-correct="true"> Score 9; Continuing routine newborn care and monitoring.</label>
+                    <label><input type="radio" name="Q1_answer" value="C" data-correct="false"> Score 8; Initiating positive pressure ventilation (PPV).</label>
+                    <label><input type="radio" name="Q1_answer" value="D" data-correct="false"> Score 9; Gently suctioning the mouth then the nose.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="2">
+                <div class="question-meta"><span>Question No. 2</span></div>
+                <div class="question-text">A neonate's axillary temperature is recorded at $36.0^{\circ}\text{C}$ ($96.8^{\circ}\text{F}$). The nurse should first check the infant's blood glucose level, as hypothermia is an early sign of which complication in newborns?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q2_answer" value="A" data-correct="false"> Respiratory Distress Syndrome (RDS)</label>
+                    <label><input type="radio" name="Q2_answer" value="B" data-correct="false"> Hyperbilirubinemia</label>
+                    <label><input type="radio" name="Q2_answer" value="C" data-correct="true"> Hypoglycemia</label>
+                    <label><input type="radio" name="Q2_answer" value="D" data-correct="false"> Neonatal Sepsis</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="3">
+                <div class="question-meta"><span>Question No. 3</span></div>
+                <div class="question-text">During a routine assessment, the nurse notices that a term neonate's breathing is characterized by short periods of apnea lasting approximately 10 seconds, followed by regular breathing. What is the appropriate nursing action?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q3_answer" value="A" data-correct="false"> Call the pediatrician immediately as this indicates a severe respiratory problem.</label>
+                    <label><input type="radio" name="Q3_answer" value="B" data-correct="false"> Prepare for neonatal resuscitation and administer supplemental oxygen.</label>
+                    <label><input type="radio" name="Q3_answer" value="C" data-correct="true"> Document the finding as periodic breathing, which is a normal variation in term neonates.</label>
+                    <label><input type="radio" name="Q3_answer" value="D" data-correct="false"> Place the neonate in a Trendelenburg position and stimulate the soles of the feet.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="4">
+                <div class="question-meta"><span>Question No. 4</span></div>
+                <div class="question-text">A preterm neonate, born at 32 weeks gestation, is receiving care in an incubator. Which nursing intervention is **most critical** in preventing the heat loss primarily by **evaporation**?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q4_answer" value="A" data-correct="false"> Placing the incubator away from cold walls and windows.</label>
+                    <label><input type="radio" name="Q4_answer" value="B" data-correct="true"> Keeping the baby's skin dry and frequently changing wet linens.</label>
+                    <label><input type="radio" name="Q4_answer" value="C" data-correct="false"> Using a radiant warmer during procedures.</label>
+                    <label><input type="radio" name="Q4_answer" value="D" data-correct="false"> Placing a cap on the baby's head.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="5">
+                <div class="question-meta"><span>Question No. 5</span></div>
+                <div class="question-text">A low birth weight neonate is initiated on Kangaroo Mother Care (KMC). The nurse evaluates that the KMC is effective when which finding is noted?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q5_answer" value="A" data-correct="false"> The neonate has a decreased sucking reflex.</label>
+                    <label><input type="radio" name="Q5_answer" value="B" data-correct="false"> The mother's body temperature is lower than the baby's.</label>
+                    <label><input type="radio" name="Q5_answer" value="C" data-correct="true"> The neonate's oxygen saturation remains consistently $\ge 95\%$.</label>
+                    <label><input type="radio" name="Q5_answer" value="D" data-correct="false"> The baby's weight gain decreases slightly in the first 24 hours.</label>
+                </div>
+            </div>
+            
+            <div class="question-container" data-q-id="6">
+                <div class="question-meta"><span>Question No. 6</span></div>
+                <div class="question-text">A nurse is preparing to administer an intramuscular injection to a 3 kg term neonate. Based on the neonate's minimal muscle mass, what is the safest and most appropriate injection site?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q6_answer" value="A" data-correct="false"> Deltoid muscle</label>
+                    <label><input type="radio" name="Q6_answer" value="B" data-correct="false"> Dorsogluteal muscle</label>
+                    <label><input type="radio" name="Q6_answer" value="C" data-correct="false"> Ventrogluteal muscle</label>
+                    <label><input type="radio" name="Q6_answer" value="D" data-correct="true"> **Vastus Lateralis** muscle</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="7">
+                <div class="question-meta"><span>Question No. 7</span></div>
+                <div class="question-text">A neonate requires positive pressure ventilation (PPV) during resuscitation. After approximately 30 seconds of effective PPV, the heart rate remains below 60 beats per minute. What is the **next priority** step in the Neonatal Resuscitation Program (NRP) algorithm?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q7_answer" value="A" data-correct="false"> Administering intravenous epinephrine.</label>
+                    <label><input type="radio" name="Q7_answer" value="B" data-correct="true"> Initiating chest compressions while continuing PPV.</label>
+                    <label><input type="radio" name="Q7_answer" value="C" data-correct="false"> Intubating the neonate.</label>
+                    <label><input type="radio" name="Q7_answer" value="D" data-correct="false"> Increasing the fraction of inspired oxygen ($\text{FiO}_2$) to $100\%$.</label>
+                </div>
+            </div>
+            
+            <div class="question-container" data-q-id="8">
+                <div class="question-meta"><span>Question No. 8</span></div>
+                <div class="question-text">A 34-week gestation neonate exhibits tachypnea, grunting, and nasal flaring. The nurse interprets these signs as indicating:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q8_answer" value="A" data-correct="false"> Hyperthermia.</label>
+                    <label><input type="radio" name="Q8_answer" value="B" data-correct="false"> Neonatal Sepsis.</label>
+                    <label><input type="radio" name="Q8_answer" value="C" data-correct="true"> Respiratory Distress Syndrome (RDS).</label>
+                    <label><input type="radio" name="Q8_answer" value="D" data-correct="false"> Hypoglycemia.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="9">
+                <div class="question-meta"><span>Question No. 9</span></div>
+                <div class="question-text">When administering continuous positive airway pressure (CPAP) to a neonate with Respiratory Distress Syndrome (RDS), the primary goal is to:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q9_answer" value="A" data-correct="true"> Provide positive end-expiratory pressure to keep alveoli open.</label>
+                    <label><input type="radio" name="Q9_answer" value="B" data-correct="false"> Increase the fractional inspired oxygen ($\text{FiO}_2$).</label>
+                    <label><input type="radio" name="Q9_answer" value="C" data-correct="false"> Bypass the neonate's respiratory efforts.</label>
+                    <label><input type="radio" name="Q9_answer" value="D" data-correct="false"> Deliver bronchodilators directly to the lungs.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="10">
+                <div class="question-meta"><span>Question No. 10</span></div>
+                <div class="question-text">A 2-day-old term neonate has developed jaundice with a total serum bilirubin level of $15\text{ mg}/\text{dL}$. The nurse initiates phototherapy. Which nursing diagnosis is the **highest priority** during this treatment?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q10_answer" value="A" data-correct="false"> Risk for Infection related to frequent stooling.</label>
+                    <label><input type="radio" name="Q10_answer" value="B" data-correct="false"> Risk for Impaired Skin Integrity related to exposure to bright light.</label>
+                    <label><input type="radio" name="Q10_answer" value="C" data-correct="true"> **Risk for Fluid Volume Deficit** related to increased insensible water loss and frequent stools.</label>
+                    <label><input type="radio" name="Q10_answer" value="D" data-correct="false"> Disturbed Sleep Pattern related to continuous light exposure.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="11">
+                <div class="question-meta"><span>Question No. 11</span></div>
+                <div class="question-text">A neonate is diagnosed with **Hyperthermia** ($\text{Temp } > 37.5^{\circ}\text{C}$). The nurse's initial action should be to:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q11_answer" value="A" data-correct="false"> Administer a tepid sponge bath.</label>
+                    <label><input type="radio" name="Q11_answer" value="B" data-correct="true"> Check the incubator temperature and remove excess clothing/covers.</label>
+                    <label><input type="radio" name="Q11_answer" value="C" data-correct="false"> Start prophylactic antibiotics immediately.</label>
+                    <label><input type="radio" name="Q11_answer" value="D" data-correct="false"> Administer prescribed acetaminophen.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="12">
+                <div class="question-meta"><span>Question No. 12</span></div>
+                <div class="question-text">A neonate with a suspected **Metabolic Disorder** has presented with lethargy, poor feeding, and unexplained vomiting. The nurse understands that the most crucial laboratory test to draw for an initial screening is:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q12_answer" value="A" data-correct="false"> Complete Blood Count (CBC).</label>
+                    <label><input type="radio" name="Q12_answer" value="B" data-correct="false"> Blood Culture and Sensitivity.</label>
+                    <label><input type="radio" name="Q12_answer" value="C" data-correct="true"> **Tandem Mass Spectrometry (TMS)** via heel prick.</label>
+                    <label><input type="radio" name="Q12_answer" value="D" data-correct="false"> X-ray of the abdomen.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="13">
+                <div class="question-meta"><span>Question No. 13</span></div>
+                <div class="question-text">In a neonate diagnosed with **Neonatal Sepsis**, the nurse notes the infant has become hypotonic and lethargic. Which action is the nurse's **priority**?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q13_answer" value="A" data-correct="false"> Increase the infant's feeding volume.</label>
+                    <label><input type="radio" name="Q13_answer" value="B" data-correct="false"> Obtain a head circumference measurement.</label>
+                    <label><input type="radio" name="Q13_answer" value="C" data-correct="true"> Monitor vital signs and prepare to administer ordered IV antibiotics.</label>
+                    <label><input type="radio" name="Q13_answer" value="D" data-correct="false"> Initiate Kangaroo Mother Care (KMC).</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="14">
+                <div class="question-meta"><span>Question No. 14</span></div>
+                <div class="question-text">A nurse is monitoring a neonate receiving treatment for **Neonatal Seizures**. The most important nursing intervention is:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q14_answer" value="A" data-correct="false"> Applying wrist restraints to prevent injury.</label>
+                    <label><input type="radio" name="Q14_answer" value="B" data-correct="true"> Maintaining the airway and administering prescribed anticonvulsants.</label>
+                    <label><input type="radio" name="Q14_answer" value="C" data-correct="false"> Stimulating the neonate to stop the seizure activity.</label>
+                    <label><input type="radio" name="Q14_answer" value="D" data-correct="false"> Placing a padded tongue blade in the neonate’s mouth.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="15">
+                <div class="question-meta"><span>Question No. 15</span></div>
+                <div class="question-text">A preterm infant is at risk for **Retinopathy of Prematurity (ROP)**. The nurse recognizes that ROP is primarily associated with:</div>
+                <div class="options">
+                    <label><input type="radio" name="Q15_answer" value="A" data-correct="true"> Prolonged exposure to high concentrations of oxygen.</label>
+                    <label><input type="radio" name="Q15_answer" value="B" data-correct="false"> Hypoglycemia episodes.</label>
+                    <label><input type="radio" name="Q15_answer" value="C" data-correct="false"> Frequent blood transfusions.</label>
+                    <label><input type="radio" name="Q15_answer" value="D" data-correct="false"> Congenital infections.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="16">
+                <div class="question-meta"><span>Question No. 16</span></div>
+                <div class="question-text">The **Organization of a Neonatal Care Unit (NCU)** should prioritize which principle to minimize the risk of infection and promote developmental care?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q16_answer" value="A" data-correct="false"> Grouping all infants by gestational age in a single room.</label>
+                    <label><input type="radio" name="Q16_answer" value="B" data-correct="false"> Maintaining an average noise level of $80\text{ dB}$ to promote stimulation.</label>
+                    <label><input type="radio" name="Q16_answer" value="C" data-correct="true"> Ensuring adequate space, hand hygiene facilities, and minimal handling.</label>
+                    <label><input type="radio" name="Q16_answer" value="D" data-correct="false"> Keeping all neonates under continuous bright lighting (phototherapy).</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="17">
+                <div class="question-meta"><span>Question No. 17</span></div>
+                <div class="question-text">A nurse is setting up a radiant warmer for an admission. Which type of heat loss does a radiant warmer primarily aim to prevent?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q17_answer" value="A" data-correct="false"> Conduction</label>
+                    <label><input type="radio" name="Q17_answer" value="B" data-correct="false"> Convection</label>
+                    <label><input type="radio" name="Q17_answer" value="C" data-correct="false"> Evaporation</label>
+                    <label><input type="radio" name="Q17_answer" value="D" data-correct="true"> **Radiation**</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="18">
+                <div class="question-meta"><span>Question No. 18</span></div>
+                <div class="question-text">Which piece of **Neonatal Equipment** is primarily used to monitor and manage severe **Hyperbilirubinemia** by reducing unconjugated bilirubin through photo-isomerization?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q18_answer" value="A" data-correct="false"> Continuous Positive Airway Pressure (CPAP) machine</label>
+                    <label><input type="radio" name="Q18_answer" value="B" data-correct="false"> Pulse Oximeter</label>
+                    <label><input type="radio" name="Q18_answer" value="C" data-correct="true"> **Phototherapy Unit**</label>
+                    <label><input type="radio" name="Q18_answer" value="D" data-correct="false"> $\text{IV}$ infusion pump</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="19">
+                <div class="question-meta"><span>Question No. 19</span></div>
+                <div class="question-text">A nurse is teaching parents of a low birth weight neonate about home care after discharge. The nurse instructs the parents to monitor the baby for signs of **Hypothermia**. Which is the **most appropriate** intervention for parents to use initially if the baby feels cold?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q19_answer" value="A" data-correct="false"> Giving the baby a warm bath.</label>
+                    <label><input type="radio" name="Q19_answer" value="B" data-correct="false"> Administering an oral antipyretic.</label>
+                    <label><input type="radio" name="Q19_answer" value="C" data-correct="false"> Undressing the baby to check for a fever.</label>
+                    <label><input type="radio" name="Q19_answer" value="D" data-correct="true"> Increasing skin-to-skin contact (KMC) under a blanket.</label>
+                </div>
+            </div>
+
+            <div class="question-container" data-q-id="20">
+                <div class="question-meta"><span>Question No. 20</span></div>
+                <div class="question-text">A neonate has **Respiratory Distress Syndrome (RDS)** and is requiring mechanical ventilation. When charting the $\text{ABG}$ results, the nurse is critically concerned about the potential for future brain damage if which finding is present?</div>
+                <div class="options">
+                    <label><input type="radio" name="Q20_answer" value="A" data-correct="false"> $\text{pH } 7.35, \text{ $\text{PaCO}_2$} 45\text{ mmHg}, \text{ $\text{HCO}_3$} 24\text{ $\text{mEq}$}/\text{L}$</label>
+                    <label><input type="radio" name="Q20_answer" value="B" data-correct="false"> $\text{pH } 7.42, \text{ $\text{PaCO}_2$} 30\text{ mmHg}, \text{ $\text{HCO}_3$} 22\text{ $\text{mEq}$}/\text{L}$</label>
+                    <label><input type="radio" name="Q20_answer" value="C" data-correct="true"> **$\text{pH } < 7.20$ (Severe Acidosis)**</label>
+                    <label><input type="radio" name="Q20_answer" value="D" data-correct="false"> $\text{pH } 7.38, \text{ $\text{PaCO}_2$} 55\text{ mmHg}, \text{ $\text{HCO}_3$} 28\text{ $\text{mEq}$}/\text{L}$</label>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="nav-buttons">
+            <button type="button" id="mark-review">Mark for Review (Visual)</button>
+            <button type="button" id="submit-exam-button">Submit Exam</button>
+        </div>
+    </div>
+
+
+    <div class="result-container" id="result-display">
+        <div class="header">
+            <div class="logo">Kajal - Results</div>
+        </div>
+        <h2>Exam Result Marks</h2>
+        <div id="result-box">
+            <div class="score-line">
+                <span>Correct Answers (True - +4 Marks):</span>
+                <span id="result-correct" class="score-value true">0</span>
+            </div>
+            <div class="score-line">
+                <span>Wrong Answers (False - -1 Mark):</span>
+                <span id="result-wrong" class="score-value false">0</span>
+            </div>
+            <div class="score-line">
+                <span>Not Attempted:</span>
+                <span id="result-not-attempted" class="score-value">20</span>
+            </div>
+            <hr>
+            <div class="score-line">
+                <strong>Total Score:</strong>
+                <strong id="result-total" class="score-value">0</strong>
+            </div>
+        </div>
+        <button id="check-answer-btn">Check Your Answer</button>
+
+        <div id="pdf-view">
+            <div class="pdf-header">Answer Key - BSc Nursing Exam</div>
+            <div id="answer-key-content"></div>
+            <div style="text-align: right; margin-top: 30px;">
+                <button id="close-pdf">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const TOTAL_QUESTIONS = 20;
+        const INSTRUCTION_PAGE = document.getElementById('instruction-page');
+        const EXAM_INTERFACE = document.getElementById('exam-interface');
+        const RESULT_SUBMISSION_FORM = document.getElementById('result-submission-form'); // New Form for submission
+        const BEGIN_EXAM_BTN = document.getElementById('begin-exam');
+        const DECLARATION_CHECK = document.getElementById('declaration-check');
+        const TIME_LEFT_SPAN = document.getElementById('time-left');
+        const SUBMIT_BUTTON = document.getElementById('submit-exam-button');
+        const RESULT_DISPLAY = document.getElementById('result-display');
+        const CHECK_ANSWER_BTN = document.getElementById('check-answer-btn');
+        const PDF_VIEW = document.getElementById('pdf-view');
+        const CLOSE_PDF_BTN = document.getElementById('close-pdf');
+        const ANSWERED_COUNT_SPAN = document.getElementById('answered-count');
+        const QUESTIONS_LIST = document.getElementById('questions-list');
+        const ANSWER_KEY_CONTENT = document.getElementById('answer-key-content');
+
+        const MAX_TIME = 20 * 60; // 20 minutes in seconds
+        let timeLeft = MAX_TIME;
+        let timerInterval;
+
+        // --- Instruction Page Logic ---
+        DECLARATION_CHECK.addEventListener('change', () => {
+            BEGIN_EXAM_BTN.disabled = !DECLARATION_CHECK.checked;
+        });
+
+        BEGIN_EXAM_BTN.addEventListener('click', () => {
+            INSTRUCTION_PAGE.style.display = 'none';
+            EXAM_INTERFACE.style.display = 'block';
+            startTimer();
+        });
+
+        // --- Timer Logic ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up! The exam will now be submitted.");
+                    handleScoringAndSubmission(); // Auto submit on time out
+                } else {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    TIME_LEFT_SPAN.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // --- Live Answered Count Logic ---
+        QUESTIONS_LIST.addEventListener('change', () => {
+            let answered = 0;
+            for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+                const radios = document.getElementsByName(`Q${i}_answer`);
+                if (Array.from(radios).some(radio => radio.checked)) {
+                    answered++;
+                }
+            }
+            ANSWERED_COUNT_SPAN.textContent = answered;
+        });
+
+        // --- Scoring and Submission Logic ---
+        function handleScoringAndSubmission() {
+            clearInterval(timerInterval);
+            
+            // 1. SCORING LOGIC
+            let correctCount = 0;
+            let wrongCount = 0;
+            let notAttempted = 0;
+            let totalScore = 0;
+            let answerKeyHTML = '';
+            let answeredData = [];
+
+            for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+                const radios = document.getElementsByName(`Q${i}_answer`);
+                let isAttempted = false;
+                let userAnswerText = 'Not Attempted';
+                let userAnswerValue = 'N/A';
+                let correctAnswerText = '';
+                
+                // Get question text and correct answer for PDF/Email
+                const questionElement = document.querySelector(`.question-container[data-q-id="${i}"]`);
+                const questionText = questionElement ? questionElement.querySelector('.question-text').textContent.trim() : `Question ${i}`;
+
+                Array.from(radios).forEach(radio => {
+                    if (radio.dataset.correct === 'true') {
+                        correctAnswerText = radio.nextSibling.textContent.trim();
+                    }
+                    if (radio.checked) {
+                        isAttempted = true;
+                        userAnswerText = radio.nextSibling.textContent.trim();
+                        userAnswerValue = radio.value;
+                        
+                        if (radio.dataset.correct === 'true') {
+                            correctCount++;
+                            totalScore += 4;
+                        } else {
+                            wrongCount++;
+                            totalScore -= 1;
+                        }
+                    }
+                });
+
+                if (!isAttempted) {
+                    notAttempted++;
+                }
+                
+                // Collect data for email and build PDF Answer Key entry
+                answeredData.push(`Q${i}: Answered=${isAttempted ? 'Yes' : 'No'}, Chosen=${userAnswerValue}, Correct=${correctAnswerText}`);
+
+                answerKeyHTML += `
+                    <div class="pdf-q-box">
+                        <strong>Q${i}.</strong> ${questionText.substring(0, 100)}...
+                        <br>
+                        <span class="user-answer">Your Answer: ${userAnswerText}</span>
+                        <br>
+                        <span class="correct-answer">Correct Answer: ${correctAnswerText}</span>
+                    </div>
+                `;
+            }
+
+            // 2. SHOW RESULT SCREEN
+            EXAM_INTERFACE.style.display = 'none';
+            RESULT_DISPLAY.style.display = 'block';
+
+            document.getElementById('result-correct').textContent = correctCount;
+            document.getElementById('result-wrong').textContent = wrongCount;
+            document.getElementById('result-not-attempted').textContent = notAttempted;
+            document.getElementById('result-total').textContent = totalScore;
+            ANSWER_KEY_CONTENT.innerHTML = answerKeyHTML;
+
+            // 3. PREPARE AND SUBMIT FORM FOR EMAIL
+            document.getElementById('final-score-input').value = totalScore;
+            document.getElementById('correct-count-input').value = correctCount;
+            document.getElementById('wrong-count-input').value = wrongCount;
+            document.getElementById('not-attempted-input').value = notAttempted;
+            document.getElementById('answered-data-input').value = answeredData.join(' | ');
+
+            // Set the redirect URL to the current page's result section to keep the user on the page
+            // Note: formsubmit.co will still show its own branded success page first.
+            document.getElementById('_next_url').value = window.location.href.split('#')[0] + '#result-display';
+
+            // Submit the separate form containing only the scores/results.
+            RESULT_SUBMISSION_FORM.submit(); 
+        }
+
+        SUBMIT_BUTTON.addEventListener('click', handleScoringAndSubmission);
+
+        // --- PDF View Logic ---
+        CHECK_ANSWER_BTN.addEventListener('click', () => {
+            PDF_VIEW.style.display = 'block';
+            CHECK_ANSWER_BTN.style.display = 'none';
+        });
+
+        CLOSE_PDF_BTN.addEventListener('click', () => {
+            PDF_VIEW.style.display = 'none';
+            CHECK_ANSWER_BTN.style.display = 'block';
+        });
+
+    </script>
+</body>
+</html>
